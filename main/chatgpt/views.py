@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from .serializers import ChatGptSerializer, StorySerializer, ChatTextInfo
 
 client = OpenAI(
-    api_key="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",
+    api_key="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",
 )
 # sadas
 
@@ -25,13 +25,13 @@ class ChatMasterView(APIView):
 
     def post(self, request, *args, **kwargs):
         user = self.request.user
-        current_story = Story.objects.filter(user=user, name=request.data.get('name')).latest('id')
+        game_id = kwargs.get('game_id')
 
         try:
-            current_game = Games.objects.filter(user=user, story=current_story).latest('id')
+            current_game = Games.objects.get(id=game_id, user=user)
+            current_story = current_game.story
         except Games.DoesNotExist:
-            current_game = Games.objects.create(user=user, story=current_story,
-                                                game_name=f"Game for {current_story.name}")
+            return Response({'error': 'Invalid Game ID'}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = ChatGptSerializer(data=request.data)
 
@@ -61,9 +61,9 @@ class ChatMasterView(APIView):
                     "content": input_text,
                 }
             ],
-            model="gpt-3.5-turbo",
+            model="gpt-3.5-turbo-1106",
             temperature=1,
-            max_tokens=500
+            max_tokens=1000
         )
 
         response_text = chat_completion.choices[0].message.content

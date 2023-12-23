@@ -20,25 +20,26 @@ class GamesSerializer(serializers.ModelSerializer):
 class ChatGptSerializer(serializers.ModelSerializer):
     games = GamesSerializer(required=False)
 
-    # Добавьте поле 'name' из Story
-    name = serializers.CharField()
-
     class Meta:
         model = ChatText
-        fields = ['id', 'text', 'answer_player', 'user', 'story', 'games', 'name']
+        fields = ['id', 'text', 'answer_player', 'user', 'story', 'games']
 
     def create(self, validated_data):
-        # Извлекаем 'name' из validated_data
-        name = validated_data.pop('name')
+        user = self.context['request'].user
 
-        # Находим соответствующую Story по имени
-        story = Story.objects.get(name=name)
+        try:
+            game_id = self.context['view'].kwargs['game_id']
+            current_game = Games.objects.get(id=game_id, user=user)
+            current_story = current_game.story
+        except (KeyError, Games.DoesNotExist):
+            raise serializers.ValidationError({'error': 'Invalid Game ID'})
 
-        # Создаем ChatText, связанный с этой Story
-        chat_text = ChatText.objects.create(story=story, **validated_data)
+        validated_data['user'] = user
+        validated_data['story'] = current_story
+        validated_data['games'] = current_game
 
+        chat_text = ChatText.objects.create(**validated_data)
         return chat_text
-
 
 class StorySerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
