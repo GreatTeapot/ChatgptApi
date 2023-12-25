@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from datetime import timedelta
 from pathlib import Path
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -155,7 +156,18 @@ SPECTACULAR_SETTINGS = {
     # OTHER SETTINGS
 }
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),  # Пример: токен доступа действителен 15 минут
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # Пример: токен доступа действителен 15 минут
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # Пример: токен обновления действителен 1 день
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=5),  # Пример: срок обновления сдвигается при каждом использовании до 5 дней
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": False,
+    "UPDATE_LAST_LOGIN": False,
+
+    "ALGORITHM": "HS256",
+    "VERIFYING_KEY": "",
+    "AUDIENCE": None,
+    "ISSUER": None,
+    "JSON_ENCODER": None,
+    "JWK_URL": None,
+    "LEEWAY": 0,
 }

@@ -1,3 +1,4 @@
+# chatgpt/serializers.py
 from rest_framework import serializers
 from authapp.models import CustomUser
 
@@ -10,7 +11,6 @@ class ChatTextInfo(serializers.ModelSerializer):
         fields = '__all__'
 
 
-# chatgpt/serializers.py
 class GamesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Games
@@ -22,7 +22,7 @@ class ChatGptSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ChatText
-        fields = ['id', 'text', 'answer_player', 'user', 'story', 'games']
+        fields = ['id', 'text', 'chatgpt_answer',  'games']
 
     def create(self, validated_data):
         user = self.context['request'].user
@@ -30,20 +30,19 @@ class ChatGptSerializer(serializers.ModelSerializer):
         try:
             game_id = self.context['view'].kwargs['game_id']
             current_game = Games.objects.get(id=game_id, user=user)
-            current_story = current_game.story
         except (KeyError, Games.DoesNotExist):
             raise serializers.ValidationError({'error': 'Invalid Game ID'})
 
         validated_data['user'] = user
-        validated_data['story'] = current_story
         validated_data['games'] = current_game
 
         chat_text = ChatText.objects.create(**validated_data)
         return chat_text
+
 
 class StorySerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all())
 
     class Meta:
         model = Story
-        fields = ['id', 'name', 'role', 'description', 'health', 'user']
+        fields = ['id', 'name', 'role', 'health', 'hunger', 'thirst', 'user']

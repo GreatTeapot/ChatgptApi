@@ -1,4 +1,5 @@
-from rest_framework.authentication import TokenAuthentication
+import json
+
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from .models import ChatText, Story, Games
 from openai import OpenAI
@@ -6,14 +7,40 @@ from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import ChatGptSerializer, StorySerializer, ChatTextInfo
+import re
+
+
+class ChatTextList(generics.ListAPIView):
+    permission_classes = [AllowAny]
+    queryset = ChatText.objects.all()
+    serializer_class = ChatTextInfo
+
 
 client = OpenAI(
     api_key="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",
 )
-# sadas
 
 
-class ChatTextList(generics.ListAPIView):
+class ChatTextView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ChatTextInfo
+
+    def get(self, request, *args, **kwargs):
+        game_id = kwargs.get('game_id')
+        chat_text_id = kwargs.get('chat_text_id')
+
+        try:
+            current_game = Games.objects.get(id=game_id, user=request.user)
+            chat_text = ChatText.objects.get(id=chat_text_id, games=current_game)
+            serializer = ChatTextInfo(chat_text)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Games.DoesNotExist:
+            return Response({'error': 'Invalid Game ID'}, status=status.HTTP_400_BAD_REQUEST)
+        except ChatText.DoesNotExist:
+            return Response({'error': 'Invalid ChatText ID'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AllGames(generics.ListAPIView):
     permission_classes = [AllowAny]
     queryset = ChatText.objects.all()
     serializer_class = ChatTextInfo
@@ -39,26 +66,23 @@ class ChatMasterView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         serializer.validated_data['user'] = user
-        input_text = serializer.validated_data['text']
-        serializer.validated_data['story'] = current_story
         serializer.validated_data['games'] = current_game
 
-        if not Games.objects.filter(id=current_game.id, user=user, story=current_story).exists():
-            return Response({'error': 'Invalid Games ID'}, status=status.HTTP_400_BAD_REQUEST)
+
 
         chat_completion = client.chat.completions.create(
             messages=[
                 {
                     "role": "system",
-                    "content": f"В конце ты должен описать что произойдет дальше..."
-                },
-                {
-                    "role": "assistant",
-                    "content": f"  {current_story.description}."
+                    "content": f"В зависимости от хороших и плохих ситуаций игрок может потерять или повысить характеристики у персонажа есть харатеристики Здоровье, Голод, Жажда которые по умолчанию равны 100 в конце ответа выводи результаты характеристик и чтобы каждая характеристика было с новым обзацем вот характеристики: "
+                               f"Здоровье:{current_story.health}"
+                               f"Голод:{current_story.hunger}"
+                               f"Жажда:{current_story.thirst}"
+                               f"Также выводи в конце что Ваша роль:{current_story.role}"
                 },
                 {
                     "role": "user",
-                    "content": input_text,
+                    "content": serializer.validated_data['text'],
                 }
             ],
             model="gpt-3.5-turbo-1106",
@@ -67,24 +91,51 @@ class ChatMasterView(APIView):
         )
 
         response_text = chat_completion.choices[0].message.content
-        ChatText.objects.create(text=input_text, answer_player=response_text, story=current_story, games=current_game)
+        ChatText.objects.create(
+            text=serializer.validated_data['text'],
+            chatgpt_answer=response_text,
+            games=current_game
+        )
 
-        health_indexes = [response_text.find("Здоровье - "), response_text.find("Здоровье игрока:")]
-        health_values = []
-
-        for index in health_indexes:
-            if index != -1:
-                value = int(response_text[index + len("Здоровье - "):].split('.')[0].strip())
-                health_values.append(value)
-
-        if health_values:
-            current_story.health = max(health_values)
+        character_attributes = extract_character_attributes(response_text)
+        if character_attributes:
+            current_story.health = character_attributes.get('health', current_story.health)
+            current_story.hunger = character_attributes.get('hunger', current_story.hunger)
+            current_story.thirst = character_attributes.get('thirst', current_story.thirst)
             current_story.save()
 
-        response_text = response_text.replace(f"Здоровье игрока: {current_story.health}", "")
-        response_data = {"text": f"{response_text} Здоровье игрока: {current_story.health}"}
+        response_data = {
+            "text": f"{response_text} Здоровье игрока: {current_story.health} Голод: {current_story.hunger} Жажда: {current_story.thirst}"
+        }
 
         return Response(response_data, status=status.HTTP_200_OK)
+
+
+def extract_character_attributes(response_text):
+    attributes = {'health': 100, 'hunger': 100, 'thirst': 100}
+
+    if 'Здоровье:' in response_text:
+        index = response_text.find('Здоровье:')
+        try:
+            attributes['health'] = int(response_text[index + len('Здоровье:'):].split()[0])
+        except ValueError:
+            pass
+
+    if 'Голод:' in response_text:
+        index = response_text.find('Голод:')
+        try:
+            attributes['hunger'] = int(response_text[index + len('Голод:'):].split()[0])
+        except ValueError:
+            pass
+
+    if 'Жажда:' in response_text:
+        index = response_text.find('Жажда:')
+        try:
+            attributes['thirst'] = int(response_text[index + len('Жажда:'):].split()[0])
+        except ValueError:
+            pass
+
+    return attributes
 
 
 class StoryView(APIView):
@@ -92,11 +143,7 @@ class StoryView(APIView):
     serializer_class = StorySerializer
 
     def post(self, request, *args, **kwargs):
-        # Extract the user from the authenticated token
         user = request.user
-
-        # Add the user to the request data before validating the serializer
-
         request_data = request.data.copy()
         request_data['user'] = user.id
         serializer = self.serializer_class(data=request_data)
@@ -109,9 +156,7 @@ class StoryView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
     def get(self, request, *args, **kwargs):
-        # Получаем и возвращаем только те истории, которые принадлежат текущему пользователю
         user = request.user
         stories = Story.objects.filter(user=user)
         serializer = StorySerializer(stories, many=True)

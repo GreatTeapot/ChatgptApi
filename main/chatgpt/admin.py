@@ -20,6 +20,6 @@ class StoryAdmin(admin.ModelAdmin):
     inlines = [ChatTextInline]
 
 
-admin.site.register(Games, GamesAdmin)
+admin.site.register(Games)
 admin.site.register(ChatText)
-admin.site.register(Story, StoryAdmin)
+admin.site.register(Story)
