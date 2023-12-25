@@ -14,14 +14,17 @@ client = OpenAI(
 
 
 class ChatTextListByGameView(ListAPIView):
+    """
+        Принимает access token и по id {game_id} и выводит все истории общение с chatgpt которые хранятся в  определенном Games
+    """
     permission_classes = [IsAuthenticated]
     serializer_class = ChatTextInfo
 
     def get_queryset(self):
+
         user = self.request.user
         game_id = self.kwargs.get('game_id')
 
-        # Проверяем, принадлежит ли игра указанному пользователю
         try:
             current_game = Games.objects.get(id=game_id, user=user)
         except Games.DoesNotExist:
@@ -32,10 +35,14 @@ class ChatTextListByGameView(ListAPIView):
 
 
 class ChatTextView(APIView):
+    """
+        Принимает access token и по id {game_id} апи выбирает игру и по  {chat_text_id} он выбирает определенную историю по его id
+    """
     permission_classes = [IsAuthenticated]
     serializer_class = ChatTextInfo
 
     def get(self, request, *args, **kwargs):
+
         game_id = kwargs.get('game_id')
         chat_text_id = kwargs.get('chat_text_id')
 
@@ -51,12 +58,18 @@ class ChatTextView(APIView):
 
 
 class AllGames(generics.ListAPIView):
+    """
+    Принимает access token и выводит все Игровые тексты которые хранятся в модельке Games
+    """
     permission_classes = [AllowAny]
     queryset = ChatText.objects.all()
     serializer_class = ChatTextInfo
 
 
 class ChatMasterView(APIView):
+    """
+    Принимает access token и по id {game_id} из апи он сохраняет текст и ответ от chatgpt в модельке Games по его id
+    """
     serializer_class = ChatGptSerializer
     permission_classes = [IsAuthenticated]
 
@@ -77,8 +90,6 @@ class ChatMasterView(APIView):
 
         serializer.validated_data['user'] = user
         serializer.validated_data['games'] = current_game
-
-
 
         chat_completion = client.chat.completions.create(
             messages=[
@@ -166,6 +177,10 @@ class StoryView(APIView):
     serializer_class = StorySerializer
 
     def post(self, request, *args, **kwargs):
+        """
+        Принимает access token и это Апи для создание Story(характеристик игрока)
+        """
+
         user = request.user
         request_data = request.data.copy()
         request_data['user'] = user.id
@@ -180,6 +195,9 @@ class StoryView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, *args, **kwargs):
+        """
+        Принимает access token и выводит все Story модельки пользвателя
+        """
         user = request.user
         stories = Story.objects.filter(user=user)
         serializer = StorySerializer(stories, many=True)

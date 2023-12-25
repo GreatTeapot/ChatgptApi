@@ -27,18 +27,27 @@ class CustomUserLoginView(TokenObtainPairView):
 
 
 class CustomUserList(generics.ListAPIView):
+    """
+    он принимает access token админа  и выводит всех зарегстрированных пользователей
+    """
     permission_classes = [IsAdminUser]
     queryset = CustomUser.objects.all()
     serializer_class = UsersSerializer
 
 
 class CustomUserUpdate(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Эта апи нужна для изменения, получение, удаление юзера. Он принимает access token юзера и выводит данные
+    """
     permission_classes = [IsAuthenticated]
     serializer_class = UsersSerializer
     queryset = CustomUser.objects.all()
 
 
 class UserInfoAPIView(APIView):
+    """
+    принимает access token юзера и выводит информацию об этом юзере
+    """
     permission_classes = [IsAuthenticated]
     serializer_class = UsersSerializer()
 
