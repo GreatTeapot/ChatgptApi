@@ -44,14 +44,11 @@ class UserRegisSerializer(serializers.ModelSerializer):
         username = data.get('username')
 
         try:
-            # Validate the username using CustomUsernameValidator.
             username_validator(username)
         except ValidationError as e:
             raise serializers.ValidationError({'username': str(e)})
 
         return data
-
-
 
     def create(self, validated_data):
         user = CustomUser.objects.create_user(
