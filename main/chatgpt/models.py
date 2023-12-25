@@ -19,6 +19,10 @@ class Games(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1)
     story = models.ForeignKey(Story, on_delete=models.CASCADE, default=1)
     game_name = models.CharField(max_length=50)
+    health = models.IntegerField(default=100)
+    hunger = models.IntegerField(default=100)
+    thirst = models.IntegerField(default=100)
+
 
     def __str__(self):
         return f"Game #{self.pk}"

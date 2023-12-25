@@ -1,5 +1,4 @@
-import json
-
+from rest_framework.generics import ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from .models import ChatText, Story, Games
 from openai import OpenAI
@@ -7,18 +6,29 @@ from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import ChatGptSerializer, StorySerializer, ChatTextInfo
-import re
-
-
-class ChatTextList(generics.ListAPIView):
-    permission_classes = [AllowAny]
-    queryset = ChatText.objects.all()
-    serializer_class = ChatTextInfo
 
 
 client = OpenAI(
     api_key="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",
 )
+
+
+class ChatTextListByGameView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ChatTextInfo
+
+    def get_queryset(self):
+        user = self.request.user
+        game_id = self.kwargs.get('game_id')
+
+        # Проверяем, принадлежит ли игра указанному пользователю
+        try:
+            current_game = Games.objects.get(id=game_id, user=user)
+        except Games.DoesNotExist:
+            return ChatText.objects.none()
+
+        # Возвращаем все объекты ChatText для данной игры и пользователя
+        return ChatText.objects.filter(games=current_game)
 
 
 class ChatTextView(APIView):
@@ -91,21 +101,34 @@ class ChatMasterView(APIView):
         )
 
         response_text = chat_completion.choices[0].message.content
-        ChatText.objects.create(
-            text=serializer.validated_data['text'],
-            chatgpt_answer=response_text,
-            games=current_game
-        )
 
         character_attributes = extract_character_attributes(response_text)
         if character_attributes:
+            current_health = current_story.health
+            current_hunger = current_story.hunger
+            current_thirst = current_story.thirst
+
             current_story.health = character_attributes.get('health', current_story.health)
             current_story.hunger = character_attributes.get('hunger', current_story.hunger)
             current_story.thirst = character_attributes.get('thirst', current_story.thirst)
             current_story.save()
 
+            current_game.health = current_story.health
+            current_game.hunger = current_story.hunger
+            current_game.thirst = current_story.thirst
+            current_game.save()
+
+        ChatText.objects.create(
+            text=serializer.validated_data['text'],
+            chatgpt_answer=response_text,
+            games=current_game,
+            health=character_attributes.get('health', current_health),
+            hunger=character_attributes.get('hunger', current_hunger),
+            thirst=character_attributes.get('thirst', current_thirst),
+        )
+
         response_data = {
-            "text": f"{response_text} Здоровье игрока: {current_story.health} Голод: {current_story.hunger} Жажда: {current_story.thirst}"
+            "text": f"{response_text}"
         }
 
         return Response(response_data, status=status.HTTP_200_OK)

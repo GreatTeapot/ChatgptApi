@@ -14,7 +14,7 @@ class ChatTextInfo(serializers.ModelSerializer):
 class GamesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Games
-        fields = ['id', 'user', 'story', 'game_name', 'max_events']
+        fields = ['id', 'user', 'story', 'game_name', 'health', 'hunger', 'thirst' ]
 
 
 class ChatGptSerializer(serializers.ModelSerializer):

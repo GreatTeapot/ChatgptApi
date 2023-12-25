@@ -1,7 +1,7 @@
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .serializers import UserRegisSerializer, ChangePasswordSerializer, UsersSerializer
 from .models import CustomUser
 from rest_framework.views import APIView
@@ -27,7 +27,7 @@ class CustomUserLoginView(TokenObtainPairView):
 
 
 class CustomUserList(generics.ListAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminUser]
     queryset = CustomUser.objects.all()
     serializer_class = UsersSerializer
 
