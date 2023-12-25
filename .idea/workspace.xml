@@ -5,9 +5,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b65d1382-2de2-42e1-81f0-07fa057c9cae" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/main/chatgpt/migrations/0002_remove_games_max_events_chattext_health_and_more.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/main/chatgpt/migrations/0003_games_health_games_hunger_games_thirst.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/0da013b3-ae19-4ee6-b2cb-e2cb36121db4.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/0da013b3-ae19-4ee6-b2cb-e2cb36121db4.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/f275bb03-4390-4301-bc20-67a1fc68e2a1.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/f275bb03-4390-4301-bc20-67a1fc68e2a1.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/authapp/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/authapp/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/chatgpt/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/chatgpt/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/chatgpt/migrations/0001_initial.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/chatgpt/migrations/0001_initial.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/chatgpt/migrations/0002_games_chattext_games.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/chatgpt/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/chatgpt/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/chatgpt/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/chatgpt/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/chatgpt/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/chatgpt/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/chatgpt/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/chatgpt/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/main/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/main/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/main/settings.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,7 +72,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "1f2edda4",
+    "git-widget-placeholder": "main",
     "last_opened_file_path": "C:/All python/ProjectFinal",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -70,6 +84,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\All python\тесты" />
       <recent name="C:\All python\ProjectFinal\main" />
       <recent name="C:\All python\ProjectFinal" />
       <recent name="C:\All python\ProjectFinal\man" />
@@ -135,6 +150,8 @@
       <workItem from="1702300737333" duration="3917000" />
       <workItem from="1702306866538" duration="7725000" />
       <workItem from="1702350059761" duration="2922000" />
+      <workItem from="1703404472884" duration="9302000" />
+      <workItem from="1703497824023" duration="7309000" />
     </task>
     <servers />
   </component>
