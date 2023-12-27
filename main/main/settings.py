@@ -162,9 +162,9 @@ SPECTACULAR_SETTINGS = {
     # OTHER SETTINGS
 }
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # Пример: токен доступа действителен 15 минут
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # Пример: токен обновления действителен 1 день
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=5),  # Пример: срок обновления сдвигается при каждом использовании до 5 дней
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),  # Пример: токен доступа действителен 15 минут
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),     # Пример: токен обновления действителен 1 день
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=7),  # Пример: срок обновления сдвигается при каждом использовании до 5 дней
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": False,
